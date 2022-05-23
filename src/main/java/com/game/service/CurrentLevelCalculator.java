@@ -2,10 +2,10 @@ package com.game.service;
 
 import org.springframework.stereotype.Component;
 
-@Component
+
 public class CurrentLevelCalculator {
-    public Integer calculate() {
-        //TODO
-        return 35;
+    public static Integer calculate(Integer experience) {
+        Integer level = (int) ((Math.sqrt(2500 + 200*experience) - 50)  / 100);
+        return level;
     }
 }
