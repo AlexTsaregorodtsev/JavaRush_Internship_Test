@@ -1,6 +1,8 @@
 package com.game.controller;
 
 import com.game.entity.Player;
+import com.game.entity.Profession;
+import com.game.entity.Race;
 import com.game.service.IdParser;
 import com.game.service.PlayerService;
 import org.springframework.http.HttpStatus;
@@ -54,10 +56,9 @@ public class PlayerController {
     public ResponseEntity<Player> getById(@PathVariable String id) {
         try {
             Optional<Player> playerOpt = playerService.getById(IdParser.parseId(id));
-            if (playerOpt.isPresent()) {
-                return new ResponseEntity<>(playerOpt.get(), HttpStatus.OK);
-            }
-            return ResponseEntity.notFound().build();
+            return playerOpt
+                    .map(player -> new ResponseEntity<>(player, HttpStatus.OK))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -65,9 +66,30 @@ public class PlayerController {
     }
 
     @GetMapping
-    public ResponseEntity<Player[]> getList
-            (@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNumber) {
-            return new ResponseEntity<>(playerService.getList(name, pageNumber), HttpStatus.OK);
+    public ResponseEntity<Player[]> getList(
+            @RequestParam(required = false) String name, @RequestParam(required = false) String title,
+            @RequestParam(required = false) Race race, @RequestParam(required = false) Profession profession,
+            @RequestParam(required = false) Long after,  @RequestParam(required = false) Long before,
+            @RequestParam(required = false) Boolean banned,  @RequestParam(required = false) Integer minExperience,
+            @RequestParam(required = false) Integer maxExperience,  @RequestParam(required = false) Integer minLevel,
+            @RequestParam(required = false) Integer maxLevel,
+            @RequestParam(required = false, defaultValue = "ID") PlayerOrder order,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "3") Integer pageSize) {
+            return new ResponseEntity<>(playerService.getList(name, title, race, profession, after, before, banned,
+                    minExperience, maxExperience, minLevel, maxLevel, order, pageNumber, pageSize), HttpStatus.OK);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getCount(
+            @RequestParam(required = false) String name, @RequestParam(required = false) String title,
+            @RequestParam(required = false) Race race, @RequestParam(required = false) Profession profession,
+            @RequestParam(required = false) Long after,  @RequestParam(required = false) Long before,
+            @RequestParam(required = false) Boolean banned,  @RequestParam(required = false) Integer minExperience,
+            @RequestParam(required = false) Integer maxExperience,  @RequestParam(required = false) Integer minLevel,
+            @RequestParam(required = false) Integer maxLevel) {
+        return new ResponseEntity<>(playerService.getCount(name, title, race, profession, after, before, banned,
+                minExperience, maxExperience, minLevel, maxLevel), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
